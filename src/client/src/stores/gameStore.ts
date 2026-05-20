@@ -35,12 +35,25 @@ interface Skill {
   cooldown: number
 }
 
+interface BattleLog {
+  message: string
+  time: number
+}
+
+interface BattleState {
+  players: string[]
+  health: { [playerId: string]: number }
+  turn: number
+  log: BattleLog[]
+}
+
 interface GameState {
   player: Player | null
   currentSect: Sect | null
   skills: Skill[]
   inBattle: boolean
   currentBattleId: string | null
+  battleState: BattleState | null
   
   setPlayer: (player: Player | null) => void
   updatePlayer: (updates: Partial<Player>) => void
@@ -49,6 +62,8 @@ interface GameState {
   enterBattle: (battleId: string) => void
   exitBattle: () => void
   addErosion: (amount: number) => void
+  updateBattleState: (state: Partial<BattleState>) => void
+  addBattleLog: (log: BattleLog) => void
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -57,6 +72,7 @@ export const useGameStore = create<GameState>((set) => ({
   skills: [],
   inBattle: false,
   currentBattleId: null,
+  battleState: null,
   
   setPlayer: (player) => {
     if (player) {
@@ -75,14 +91,38 @@ export const useGameStore = create<GameState>((set) => ({
   
   setSkills: (skills) => set({ skills }),
   
-  enterBattle: (battleId) => set({ inBattle: true, currentBattleId: battleId }),
+  enterBattle: (battleId) => set({ 
+    inBattle: true, 
+    currentBattleId: battleId,
+    battleState: {
+      players: [],
+      health: {},
+      turn: 0,
+      log: []
+    }
+  }),
   
-  exitBattle: () => set({ inBattle: false, currentBattleId: null }),
+  exitBattle: () => set({ 
+    inBattle: false, 
+    currentBattleId: null,
+    battleState: null
+  }),
   
   addErosion: (amount) => set((state) => ({
     player: state.player ? {
       ...state.player,
       erosionValue: Math.min(100, state.player.erosionValue + amount)
+    } : null
+  })),
+  
+  updateBattleState: (state) => set((prev) => ({
+    battleState: prev.battleState ? { ...prev.battleState, ...state } : null
+  })),
+  
+  addBattleLog: (log) => set((prev) => ({
+    battleState: prev.battleState ? {
+      ...prev.battleState,
+      log: [...prev.battleState.log, log]
     } : null
   }))
 }))
