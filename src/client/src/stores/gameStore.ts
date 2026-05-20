@@ -1,0 +1,137 @@
+import { create } from 'zustand'
+
+export interface Player {
+  id: string
+  username: string
+  level: number
+  realmLevel: number
+  realmName: string
+  classType: string
+  erosionValue: number
+  health: number
+  maxHealth: number
+  attack: number
+  defense: number
+  speed: number
+  sectId?: string
+  mentorId?: string
+  bondPartnerId?: string
+  gold?: number
+  essence?: number
+}
+
+interface Sect {
+  id: string
+  name: string
+  type: string
+  level: number
+  memberCount: number
+}
+
+interface Skill {
+  id: string
+  name: string
+  description: string
+  type: string
+  erosionType: string
+  level: number
+  damage: number
+  cooldown: number
+}
+
+interface BattleLog {
+  message: string
+  time: number
+}
+
+interface BattleState {
+  players: string[]
+  health: { [playerId: string]: number }
+  turn: number
+  log: BattleLog[]
+}
+
+interface GameState {
+  player: Player | null
+  currentSect: Sect | null
+  skills: Skill[]
+  inBattle: boolean
+  currentBattleId: string | null
+  battleState: BattleState | null
+  
+  setPlayer: (player: Player | null) => void
+  updatePlayer: (updates: Partial<Player>) => void
+  setCurrentSect: (sect: Sect | null) => void
+  setSkills: (skills: Skill[]) => void
+  enterBattle: (battleId: string) => void
+  exitBattle: () => void
+  startBattle: () => void
+  addErosion: (amount: number) => void
+  updateBattleState: (state: Partial<BattleState>) => void
+  addBattleLog: (log: BattleLog) => void
+}
+
+export const useGameStore = create<GameState>((set) => ({
+  player: null,
+  currentSect: null,
+  skills: [],
+  inBattle: false,
+  currentBattleId: null,
+  battleState: null,
+  
+  setPlayer: (player) => {
+    if (player) {
+      localStorage.setItem('devour-realm-player', JSON.stringify(player))
+    } else {
+      localStorage.removeItem('devour-realm-player')
+    }
+    set({ player })
+  },
+  
+  updatePlayer: (updates) => set((state) => ({
+    player: state.player ? { ...state.player, ...updates } : null
+  })),
+  
+  setCurrentSect: (sect) => set({ currentSect: sect }),
+  
+  setSkills: (skills) => set({ skills }),
+  
+  enterBattle: (battleId) => set({ 
+    inBattle: true, 
+    currentBattleId: battleId,
+    battleState: {
+      players: [],
+      health: {},
+      turn: 0,
+      log: []
+    }
+  }),
+  
+  exitBattle: () => set({ 
+    inBattle: false, 
+    currentBattleId: null,
+    battleState: null
+  }),
+  
+  startBattle: () => set({ 
+    inBattle: true
+  }),
+  
+  addErosion: (amount) => set((state) => ({
+    player: state.player ? {
+      ...state.player,
+      erosionValue: Math.min(100, state.player.erosionValue + amount)
+    } : null
+  })),
+  
+  updateBattleState: (state) => set((prev) => ({
+    battleState: prev.battleState ? { ...prev.battleState, ...state } : null
+  })),
+  
+  addBattleLog: (log) => set((prev) => ({
+    battleState: prev.battleState ? {
+      ...prev.battleState,
+      log: [...prev.battleState.log, log]
+    } : null
+  }))
+}))
