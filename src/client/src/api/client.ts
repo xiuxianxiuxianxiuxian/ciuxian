@@ -150,25 +150,61 @@ export const api = {
   sect: {
     getAll: async (): Promise<ApiResponse<SectsResponse>> => {
       const response = await fetch(`${API_BASE}/sects`)
-      return handleResponse<SectsResponse>(response)
+      return handleResponse(response)
     },
     
-    create: async (name: string, type: string, leaderId: string): Promise<ApiResponse<any>> => {
+    create: async (name: string, type: string, leaderId: string): Promise<ApiResponse<SectResponse>> => {
       const response = await fetch(`${API_BASE}/sects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, type, leaderId })
       })
-      return handleResponse<any>(response)
+      return handleResponse(response)
     },
     
-    join: async (sectId: string, playerId: string): Promise<ApiResponse<PlayerResponse>> => {
+    join: async (sectId: string, playerId: string): Promise<ApiResponse<{ message: string, player: PlayerResponse }>> => {
       const response = await fetch(`${API_BASE}/sects/${sectId}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ playerId })
       })
-      return handleResponse<PlayerResponse>(response)
+      return handleResponse(response)
+    },
+    
+    getLawNodes: async (): Promise<ApiResponse<{ nodes: any[] }>> => {
+      const response = await fetch(`${API_BASE}/sects/law-nodes`)
+      return handleResponse(response)
+    },
+    
+    claimNode: async (sectId: string, nodeId: string): Promise<ApiResponse<{ message: string, node: any, bonus: any }>> => {
+      const response = await fetch(`${API_BASE}/sects/${sectId}/claim-node`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nodeId })
+      })
+      return handleResponse(response)
+    },
+    
+    captureNode: async (sectId: string, nodeId: string, attackerCount: number): Promise<ApiResponse<{ message: string, node?: any, bonus?: any, battleResult?: any }>> => {
+      const response = await fetch(`${API_BASE}/sects/${sectId}/capture-node`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nodeId, attackerCount })
+      })
+      return handleResponse(response)
+    },
+    
+    getWarStatus: async (sectId: string): Promise<ApiResponse<{ sect: string, ownedNodes: any[], totalBonus: any, nodeCount: number }>> => {
+      const response = await fetch(`${API_BASE}/sects/${sectId}/war-status`)
+      return handleResponse(response)
+    },
+    
+    upgrade: async (sectId: string): Promise<ApiResponse<{ message: string, sect: any }>> => {
+      const response = await fetch(`${API_BASE}/sects/${sectId}/upgrade`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      return handleResponse(response)
     }
   }
 }
