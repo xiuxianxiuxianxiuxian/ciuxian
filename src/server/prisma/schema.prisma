@@ -32,6 +32,9 @@ model Player {
   defense         Int      @default(10)
   speed           Int      @default(10)
   
+  gold            Int      @default(100)
+  essence         Int      @default(0)
+  
   sectId          String?
   sect            Sect?    @relation(fields: [sectId], references: [id])
   mentorId        String?
@@ -40,6 +43,11 @@ model Player {
   bondPartnerId    String?   @unique
   bondPartner     Player?  @relation("PlayerBond", fields: [bondPartnerId], references: [id])
   bondedWith      Player?  @relation("PlayerBond")
+  
+  inventory       PlayerInventoryItem[]
+  listings        MarketListing[]
+  purchases       MarketListing[] @relation("MarketBuyer")
+  craftRecipes    CraftingRecord[]
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -79,6 +87,82 @@ model Item {
   type        String
   rarity      String
   effect      Json?
+  value       Int      @default(0)
+  
+  inventory   PlayerInventoryItem[]
+  listings    MarketListing[]
+  craftResults CraftingRecipe[]
+  ingredient1Recipes CraftingRecipe[] @relation("Ingredient1")
+  ingredient2Recipes CraftingRecipe[] @relation("Ingredient2")
+  ingredient3Recipes CraftingRecipe[] @relation("Ingredient3")
+  craftRecordResults CraftingRecord[]
   
   @@map("items")
+}
+
+model PlayerInventoryItem {
+  id        String   @id @default(uuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id])
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+  quantity  Int      @default(1)
+  equipped  Boolean  @default(false)
+  
+  @@map("player_inventory_items")
+}
+
+model MarketListing {
+  id           String   @id @default(uuid())
+  sellerId     String
+  seller       Player   @relation(fields: [sellerId], references: [id])
+  itemId       String
+  item         Item     @relation(fields: [itemId], references: [id])
+  quantity     Int      @default(1)
+  price        Int
+  active       Boolean  @default(true)
+  buyerId      String?
+  buyer        Player?  @relation("MarketBuyer", fields: [buyerId], references: [id])
+  soldAt       DateTime?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("market_listings")
+}
+
+model CraftingRecipe {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  resultId    String
+  result      Item     @relation(fields: [resultId], references: [id])
+  ingredient1Id String?
+  ingredient1   Item?    @relation("Ingredient1", fields: [ingredient1Id], references: [id])
+  ingredient1Quantity Int @default(1)
+  ingredient2Id String?
+  ingredient2   Item?    @relation("Ingredient2", fields: [ingredient2Id], references: [id])
+  ingredient2Quantity Int @default(1)
+  ingredient3Id String?
+  ingredient3   Item?    @relation("Ingredient3", fields: [ingredient3Id], references: [id])
+  ingredient3Quantity Int @default(1)
+  levelRequired Int @default(1)
+  cost          Int @default(0)
+  craftRecords  CraftingRecord[]
+  
+  @@map("crafting_recipes")
+}
+
+model CraftingRecord {
+  id         String   @id @default(uuid())
+  playerId   String
+  player     Player   @relation(fields: [playerId], references: [id])
+  recipeId   String
+  recipe     CraftingRecipe @relation(fields: [recipeId], references: [id])
+  resultId   String
+  result     Item     @relation(fields: [resultId], references: [id])
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  
+  @@map("crafting_records")
 }

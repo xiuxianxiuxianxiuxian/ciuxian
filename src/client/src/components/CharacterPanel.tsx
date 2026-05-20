@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useGameStore } from '../stores/gameStore'
 import { api } from '../api/client'
 import { EROSION_CONFIG } from '../../../shared/types/erosion'

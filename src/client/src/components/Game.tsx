@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useGameStore } from '../stores/gameStore'
 import { api } from '../api/client'
 import CharacterPanel from './CharacterPanel'
 import SectPanel from './SectPanel'
 import BattlePanel from './BattlePanel'
 import SocialPanel from './SocialPanel'
+import EconomyPanel from './EconomyPanel'
+import DungeonPanel from './DungeonPanel'
 
 function Game() {
-  const { player, currentSect, setCurrentSect, inBattle } = useGameStore()
-  const [activePanel, setActivePanel] = useState<'character' | 'sect' | 'battle' | 'social'>('character')
+  const { player, setCurrentSect, inBattle } = useGameStore()
+  const [activePanel, setActivePanel] = useState<'character' | 'sect' | 'battle' | 'social' | 'economy' | 'dungeon'>('character')
   
   useEffect(() => {
     if (player?.sectId) {
@@ -61,6 +63,22 @@ function Game() {
               社交
             </button>
             <button
+              onClick={() => setActivePanel('economy')}
+              className={`px-4 py-2 rounded ${
+                activePanel === 'economy' ? 'bg-erosion-glow' : 'bg-gray-700'
+              }`}
+            >
+              经济
+            </button>
+            <button
+              onClick={() => setActivePanel('dungeon')}
+              className={`px-4 py-2 rounded ${
+                activePanel === 'dungeon' ? 'bg-erosion-glow' : 'bg-gray-700'
+              }`}
+            >
+              副本
+            </button>
+            <button
               onClick={() => setActivePanel('battle')}
               className={`px-4 py-2 rounded ${
                 activePanel === 'battle' ? 'bg-erosion-glow' : 'bg-gray-700'
@@ -84,6 +102,8 @@ function Game() {
             {activePanel === 'character' && <CharacterPanel />}
             {activePanel === 'sect' && <SectPanel />}
             {activePanel === 'social' && <SocialPanel />}
+            {activePanel === 'economy' && <EconomyPanel />}
+            {activePanel === 'dungeon' && <DungeonPanel />}
             {activePanel === 'battle' && <BattlePanel />}
           </>
         )}

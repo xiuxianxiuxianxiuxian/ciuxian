@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useGameStore } from '../stores/gameStore'
 import { api } from '../api/client'
 
@@ -23,8 +23,8 @@ function SocialPanel() {
   }, [player])
   
   const loadBondPartner = async () => {
-    if (player?.bondPartnerId) {
-      const result = await api.player.getById(player.bondPartnerId)
+    if ((player as any)?.bondPartnerId) {
+      const result = await api.player.getById((player as any).bondPartnerId)
       if (result.data?.player) {
         setBondPartner(result.data.player)
       }
@@ -32,8 +32,8 @@ function SocialPanel() {
   }
   
   const loadMentor = async () => {
-    if (player?.mentorId) {
-      const result = await api.player.getById(player.mentorId)
+    if ((player as any)?.mentorId) {
+      const result = await api.player.getById((player as any).mentorId)
       if (result.data?.player) {
         setMentor(result.data.player)
       }

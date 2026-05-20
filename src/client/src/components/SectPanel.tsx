@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useGameStore } from '../stores/gameStore'
 import { api } from '../api/client'
 
@@ -184,7 +184,7 @@ function SectPanel() {
                 <div className="bg-gray-800 p-3 rounded">
                   <div className="text-sm text-gray-400">总加成</div>
                   <div className="text-sm">
-                    {Object.entries(warStatus.totalBonus).map(([key, value]) => (
+                    {Object.entries(warStatus.totalBonus as Record<string, number>).map(([key, value]) => (
                       <div key={key} className="text-gray-300">
                         {key}: +{value}%
                       </div>

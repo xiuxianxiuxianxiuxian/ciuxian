@@ -14,6 +14,10 @@ export interface Player {
   defense: number
   speed: number
   sectId?: string
+  mentorId?: string
+  bondPartnerId?: string
+  gold?: number
+  essence?: number
 }
 
 interface Sect {
@@ -61,6 +65,7 @@ interface GameState {
   setSkills: (skills: Skill[]) => void
   enterBattle: (battleId: string) => void
   exitBattle: () => void
+  startBattle: () => void
   addErosion: (amount: number) => void
   updateBattleState: (state: Partial<BattleState>) => void
   addBattleLog: (log: BattleLog) => void
@@ -106,6 +111,10 @@ export const useGameStore = create<GameState>((set) => ({
     inBattle: false, 
     currentBattleId: null,
     battleState: null
+  }),
+  
+  startBattle: () => set({ 
+    inBattle: true
   }),
   
   addErosion: (amount) => set((state) => ({

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useGameStore } from './stores/gameStore'
 import Login from './components/Login'
 import Game from './components/Game'
