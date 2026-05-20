@@ -11,6 +11,8 @@ function CharacterPanel() {
   
   if (!player) return null
   
+  const erosionValue = player.erosionValue ?? 0
+  
   const handleAbsorbErosion = async (type: string) => {
     const result = await api.player.absorbErosion(player.id, type, 10)
     if (result.data?.player) {
@@ -201,45 +203,45 @@ function CharacterPanel() {
             <div className="flex justify-between mb-2">
               <span className="text-gray-300">异化值：</span>
               <span className="text-white font-bold">
-                {player.erosionValue.toFixed(1)}%
+                {erosionValue.toFixed(1)}%
               </span>
             </div>
             <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
               <div
                 className={`h-full transition-all ${
-                  player.erosionValue < 25 ? 'bg-green-500' :
-                  player.erosionValue < 50 ? 'bg-yellow-500' :
-                  player.erosionValue < 75 ? 'bg-orange-500' :
+                  erosionValue < 25 ? 'bg-green-500' :
+                  erosionValue < 50 ? 'bg-yellow-500' :
+                  erosionValue < 75 ? 'bg-orange-500' :
                   'bg-red-500'
                 }`}
-                style={{ width: `${player.erosionValue}%` }}
+                style={{ width: `${erosionValue}%` }}
               />
             </div>
           </div>
-          
-          {player.erosionValue >= 25 && (
+
+          {erosionValue >= 25 && (
             <div className="bg-red-900 p-4 rounded border border-red-500">
               <h4 className="font-bold text-red-400 mb-2">⚠️ 异化警告</h4>
               <p className="text-sm text-gray-300">
-                {player.erosionValue >= 75 && '你正在失去人类的身份...'}
-                {player.erosionValue >= 50 && player.erosionValue < 75 && '你的人形正在崩解...'}
-                {player.erosionValue >= 25 && player.erosionValue < 50 && '非人特征开始显现...'}
+                {erosionValue >= 75 && '你正在失去人类的身份...'}
+                {erosionValue >= 50 && erosionValue < 75 && '你的人形正在崩解...'}
+                {erosionValue >= 25 && erosionValue < 50 && '非人特征开始显现...'}
               </p>
             </div>
           )}
           
           <div className="space-y-2">
             <h3 className="text-lg font-bold text-gray-300">异化天赋</h3>
-            
-            {player.erosionValue >= 25 && (
+
+            {erosionValue >= 25 && (
               <div className="bg-gray-700 p-3 rounded">
                 <h4 className="font-bold text-green-400">血肉堡垒</h4>
                 <p className="text-sm text-gray-400">生命+200%</p>
                 <p className="text-xs text-red-400 mt-1">无法穿戴防具</p>
               </div>
             )}
-            
-            {player.erosionValue >= 50 && (
+
+            {erosionValue >= 50 && (
               <div className="bg-gray-700 p-3 rounded">
                 <h4 className="font-bold text-yellow-400">低语先知</h4>
                 <p className="text-sm text-gray-400">听到怪物/NPC心声</p>

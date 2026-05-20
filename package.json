@@ -16,5 +16,8 @@
   },
   "dependencies": {
     "concurrently": "^9.2.1"
+  },
+  "prisma": {
+    "seed": "tsx src/server/prisma/seed.ts"
   }
 }
