@@ -148,4 +148,161 @@ export async function playerRoutes(fastify: FastifyInstance) {
       cost: nextRealm.cost
     })
   })
+  
+  fastify.post('/:id/become-mentor', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as any
+    const { menteeId } = request.body as any
+    
+    const mentor = await prisma.player.findUnique({ where: { id } })
+    const mentee = await prisma.player.findUnique({ where: { id: menteeId } })
+    
+    if (!mentor || !mentee) {
+      return reply.status(404).send({ error: '玩家不存在' })
+    }
+    
+    if (mentee.mentorId) {
+      return reply.status(400).send({ error: '该玩家已有师傅' })
+    }
+    
+    if (mentor.id === mentee.id) {
+      return reply.status(400).send({ error: '不能收自己为徒' })
+    }
+    
+    const updatedMentee = await prisma.player.update({
+      where: { id: menteeId },
+      data: { mentorId: id }
+    })
+    
+    return reply.send({
+      message: '收徒成功！师徒共享异化抗性',
+      mentor: mentor.username,
+      mentee: updatedMentee.username
+    })
+  })
+  
+  fastify.post('/:id/accept-mentor', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as any
+    const { mentorId } = request.body as any
+    
+    const player = await prisma.player.findUnique({ where: { id } })
+    const mentor = await prisma.player.findUnique({ where: { id: mentorId } })
+    
+    if (!player || !mentor) {
+      return reply.status(404).send({ error: '玩家不存在' })
+    }
+    
+    if (player.mentorId) {
+      return reply.status(400).send({ error: '你已经有师傅了' })
+    }
+    
+    const updatedPlayer = await prisma.player.update({
+      where: { id },
+      data: { mentorId }
+    })
+    
+    return reply.send({
+      message: `成功拜 ${mentor.username} 为师！获得异化抗性加成`,
+      player: updatedPlayer
+    })
+  })
+  
+  fastify.get('/:id/mentees', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as any
+    
+    const mentees = await prisma.player.findMany({
+      where: { mentorId: id },
+      select: { id: true, username: true, level: true, realmName: true }
+    })
+    
+    return reply.send({ mentees })
+  })
+  
+  fastify.post('/:id/revoke-mentor', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as any
+    
+    const player = await prisma.player.findUnique({ where: { id } })
+    if (!player) {
+      return reply.status(404).send({ error: '玩家不存在' })
+    }
+    
+    const updatedPlayer = await prisma.player.update({
+      where: { id },
+      data: { mentorId: null }
+    })
+    
+    return reply.send({
+      message: '已解除师徒关系',
+      player: updatedPlayer
+    })
+  })
+  
+  fastify.post('/:id/bond', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as any
+    const { targetId } = request.body as any
+    
+    const player = await prisma.player.findUnique({ where: { id } })
+    const target = await prisma.player.findUnique({ where: { id: targetId } })
+    
+    if (!player || !target) {
+      return reply.status(404).send({ error: '玩家不存在' })
+    }
+    
+    if (player.id === target.id) {
+      return reply.status(400).send({ error: '不能与自己结缘' })
+    }
+    
+    if (player.bondPartnerId) {
+      return reply.status(400).send({ error: '你已经有结缘对象了' })
+    }
+    
+    if (target.bondPartnerId) {
+      return reply.status(400).send({ error: '对方已经有结缘对象了' })
+    }
+    
+    const updatedPlayer = await prisma.player.update({
+      where: { id },
+      data: { bondPartnerId: targetId }
+    })
+    
+    const updatedTarget = await prisma.player.update({
+      where: { id: targetId },
+      data: { bondPartnerId: id }
+    })
+    
+    return reply.send({
+      message: '结缘成功！双方战斗共享领域效果',
+      player1: updatedPlayer.username,
+      player2: updatedTarget.username
+    })
+  })
+  
+  fastify.post('/:id/unbond', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as any
+    
+    const player = await prisma.player.findUnique({ where: { id } })
+    if (!player) {
+      return reply.status(404).send({ error: '玩家不存在' })
+    }
+    
+    if (!player.bondPartnerId) {
+      return reply.status(400).send({ error: '你没有结缘对象' })
+    }
+    
+    const targetId = player.bondPartnerId
+    
+    const updatedPlayer = await prisma.player.update({
+      where: { id },
+      data: { bondPartnerId: null }
+    })
+    
+    await prisma.player.update({
+      where: { id: targetId },
+      data: { bondPartnerId: null }
+    })
+    
+    return reply.send({
+      message: '已解除结缘',
+      player: updatedPlayer
+    })
+  })
 }

@@ -96,6 +96,54 @@ export const api = {
         headers: { 'Content-Type': 'application/json' }
       })
       return handleResponse(response)
+    },
+    
+    becomeMentor: async (id: string, menteeId: string): Promise<ApiResponse<{ message: string, mentor: string, mentee: string }>> => {
+      const response = await fetch(`${API_BASE}/players/${id}/become-mentor`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ menteeId })
+      })
+      return handleResponse(response)
+    },
+    
+    acceptMentor: async (id: string, mentorId: string): Promise<ApiResponse<{ message: string, player: PlayerResponse }>> => {
+      const response = await fetch(`${API_BASE}/players/${id}/accept-mentor`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mentorId })
+      })
+      return handleResponse(response)
+    },
+    
+    getMentees: async (id: string): Promise<ApiResponse<{ mentees: any[] }>> => {
+      const response = await fetch(`${API_BASE}/players/${id}/mentees`)
+      return handleResponse(response)
+    },
+    
+    revokeMentor: async (id: string): Promise<ApiResponse<{ message: string, player: PlayerResponse }>> => {
+      const response = await fetch(`${API_BASE}/players/${id}/revoke-mentor`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      return handleResponse(response)
+    },
+    
+    bond: async (id: string, targetId: string): Promise<ApiResponse<{ message: string, player1: string, player2: string }>> => {
+      const response = await fetch(`${API_BASE}/players/${id}/bond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetId })
+      })
+      return handleResponse(response)
+    },
+    
+    unbond: async (id: string): Promise<ApiResponse<{ message: string, player: PlayerResponse }>> => {
+      const response = await fetch(`${API_BASE}/players/${id}/unbond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      return handleResponse(response)
     }
   },
   

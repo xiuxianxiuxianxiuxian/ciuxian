@@ -4,10 +4,11 @@ import { api } from '../api/client'
 import CharacterPanel from './CharacterPanel'
 import SectPanel from './SectPanel'
 import BattlePanel from './BattlePanel'
+import SocialPanel from './SocialPanel'
 
 function Game() {
   const { player, currentSect, setCurrentSect, inBattle } = useGameStore()
-  const [activePanel, setActivePanel] = useState<'character' | 'sect' | 'battle'>('character')
+  const [activePanel, setActivePanel] = useState<'character' | 'sect' | 'battle' | 'social'>('character')
   
   useEffect(() => {
     if (player?.sectId) {
@@ -52,6 +53,14 @@ function Game() {
               宗门
             </button>
             <button
+              onClick={() => setActivePanel('social')}
+              className={`px-4 py-2 rounded ${
+                activePanel === 'social' ? 'bg-erosion-glow' : 'bg-gray-700'
+              }`}
+            >
+              社交
+            </button>
+            <button
               onClick={() => setActivePanel('battle')}
               className={`px-4 py-2 rounded ${
                 activePanel === 'battle' ? 'bg-erosion-glow' : 'bg-gray-700'
@@ -74,6 +83,7 @@ function Game() {
           <>
             {activePanel === 'character' && <CharacterPanel />}
             {activePanel === 'sect' && <SectPanel />}
+            {activePanel === 'social' && <SocialPanel />}
             {activePanel === 'battle' && <BattlePanel />}
           </>
         )}
