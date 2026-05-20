@@ -85,11 +85,11 @@ let activeRuns = new Map()
 
 export async function dungeonRoutes(fastify: FastifyInstance) {
   
-  fastify.get('/dungeons', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     return reply.send({ dungeons: DUNGEONS })
   })
 
-  fastify.get('/dungeons/:dungeonId', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:dungeonId', async (request: FastifyRequest, reply: FastifyReply) => {
     const { dungeonId } = request.params as any
     const dungeon = DUNGEONS.find(d => d.id === dungeonId)
     
@@ -150,7 +150,7 @@ export async function dungeonRoutes(fastify: FastifyInstance) {
     })
   })
 
-  fastify.post('/dungeons/:dungeonId/:runId/attack', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/:dungeonId/:runId/attack', async (request: FastifyRequest, reply: FastifyReply) => {
     const { dungeonId, runId } = request.params as any
     const { playerId, targetId, damage } = request.body as any
     
@@ -223,7 +223,7 @@ export async function dungeonRoutes(fastify: FastifyInstance) {
     })
   })
 
-  fastify.post('/dungeons/:dungeonId/:runId/leave', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/:dungeonId/:runId/leave', async (request: FastifyRequest, reply: FastifyReply) => {
     const { runId } = request.params as any
     const { playerId } = request.body as any
     
@@ -245,7 +245,7 @@ export async function dungeonRoutes(fastify: FastifyInstance) {
     return reply.send({ message: '已离开副本' })
   })
 
-  fastify.get('/dungeons/:dungeonId/:runId/status', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:dungeonId/:runId/status', async (request: FastifyRequest, reply: FastifyReply) => {
     const { runId } = request.params as any
     
     const dungeonRun = activeRuns.get(runId)
