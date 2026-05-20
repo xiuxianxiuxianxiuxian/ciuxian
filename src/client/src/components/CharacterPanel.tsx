@@ -1,6 +1,7 @@
 import React from 'react'
 import { useGameStore } from '../stores/gameStore'
 import { api } from '../api/client'
+import { EROSION_CONFIG } from '../../../shared/types/erosion'
 
 function CharacterPanel() {
   const { player, updatePlayer } = useGameStore()
@@ -64,27 +65,46 @@ function CharacterPanel() {
             <div className="space-y-3">
               <button
                 onClick={() => handleAbsorbErosion('gray')}
-                className="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded transition"
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 py-3 rounded transition text-left px-4"
               >
-                吸收灰蚀 (+10)
+                <div className="font-bold text-gray-300">{EROSION_CONFIG.gray.name}</div>
+                <div className="text-xs text-gray-400 mt-1">
+                  来源: {EROSION_CONFIG.gray.source} | 力量: {EROSION_CONFIG.gray.power}
+                </div>
+                <div className="text-xs text-red-400 mt-1">风险: {EROSION_CONFIG.gray.risk}</div>
               </button>
+              
               <button
                 onClick={() => handleAbsorbErosion('crimson')}
-                className="w-full bg-red-800 hover:bg-red-900 py-2 rounded transition"
+                className="w-full bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800 py-3 rounded transition text-left px-4"
               >
-                吸收猩蚀 (+10)
+                <div className="font-bold text-red-300">{EROSION_CONFIG.crimson.name}</div>
+                <div className="text-xs text-red-400 mt-1">
+                  来源: {EROSION_CONFIG.crimson.source} | 力量: {EROSION_CONFIG.crimson.power}
+                </div>
+                <div className="text-xs text-red-400 mt-1">风险: {EROSION_CONFIG.crimson.risk}</div>
               </button>
+              
               <button
                 onClick={() => handleAbsorbErosion('pale')}
-                className="w-full bg-gray-400 hover:bg-gray-500 py-2 rounded transition"
+                className="w-full bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-300 hover:to-gray-400 py-3 rounded transition text-left px-4"
               >
-                吸收苍白之蚀 (+10)
+                <div className="font-bold text-gray-200">{EROSION_CONFIG.pale.name}</div>
+                <div className="text-xs text-gray-300 mt-1">
+                  来源: {EROSION_CONFIG.pale.source} | 力量: {EROSION_CONFIG.pale.power}
+                </div>
+                <div className="text-xs text-red-400 mt-1">风险: {EROSION_CONFIG.pale.risk}</div>
               </button>
+              
               <button
                 onClick={() => handleAbsorbErosion('dark')}
-                className="w-full bg-purple-900 hover:bg-purple-950 py-2 rounded transition"
+                className="w-full bg-gradient-to-r from-purple-900 to-purple-950 hover:from-purple-800 hover:to-purple-900 py-3 rounded transition text-left px-4"
               >
-                吸收深黯之蚀 (+10)
+                <div className="font-bold text-purple-300">{EROSION_CONFIG.dark.name}</div>
+                <div className="text-xs text-purple-400 mt-1">
+                  来源: {EROSION_CONFIG.dark.source} | 力量: {EROSION_CONFIG.dark.power}
+                </div>
+                <div className="text-xs text-red-400 mt-1">风险: {EROSION_CONFIG.dark.risk}</div>
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { PrismaClient } from '@prisma/client'
+import { calculateErosionValue, ErosionType } from '../../../shared/types/erosion'
 
 const prisma = new PrismaClient()
 
@@ -58,23 +59,51 @@ export async function playerRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: '玩家不存在' })
     }
     
-    const erosionField = `${erosionType.replace('-', '')}Erosion`
-    const updateData: any = {}
-    updateData[erosionField] = { increment: amount }
+    const erosionFieldMap: Record<ErosionType, string> = {
+      gray: 'grayErosion',
+      crimson: 'crimsonErosion',
+      pale: 'paleErosion',
+      dark: 'darkErosion'
+    }
     
-    const newPlayer = await prisma.player.update({
+    const field = erosionFieldMap[erosionType as ErosionType]
+    if (!field) {
+      return reply.status(400).send({ error: '无效的蚀熵类型' })
+    }
+    
+    const updateData: any = {}
+    updateData[field] = { increment: amount }
+    
+    const updatedPlayer = await prisma.player.update({
+      where: { id },
+      data: updateData
+    })
+    
+    const totalErosionValue = calculateErosionValue({
+      grayErosion: updatedPlayer.grayErosion,
+      crimsonErosion: updatedPlayer.crimsonErosion,
+      paleErosion: updatedPlayer.paleErosion,
+      darkErosion: updatedPlayer.darkErosion
+    })
+    
+    const finalPlayer = await prisma.player.update({
       where: { id },
       data: {
-        ...updateData,
-        erosionValue: {
-          increment: amount * 0.1
-        }
+        erosionValue: totalErosionValue
       }
     })
     
+    if (totalErosionValue >= 100) {
+      return reply.send({
+        message: '吞噬成功！但你已经彻底异化！',
+        player: finalPlayer,
+        fullyAlienated: true
+      })
+    }
+    
     return reply.send({
       message: '吞噬成功',
-      player: newPlayer
+      player: finalPlayer
     })
   })
 }
