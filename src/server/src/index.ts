@@ -24,12 +24,13 @@ fastify.register(sectRoutes, { prefix: '/api/sects' })
 fastify.register(economyRoutes, { prefix: '/api/economy' })
 fastify.register(dungeonRoutes, { prefix: '/api/dungeons' })
 
-setupSocketIO(fastify)
-
 const start = async () => {
   try {
     await fastify.listen({ port: 4000 })
     console.log('Server running at http://localhost:4000')
+    
+    setupSocketIO(fastify)
+    console.log('Socket.IO initialized')
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)

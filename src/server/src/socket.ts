@@ -6,14 +6,11 @@ import { BattleManager } from './battle/BattleManager'
 const prisma = new PrismaClient()
 
 export function setupSocketIO(fastify: FastifyInstance) {
-  const io = new SocketIOServer({
+  const io = new SocketIOServer(fastify.server, {
     cors: {
       origin: '*'
-    },
-    path: '/socket.io/'
+    }
   })
-  
-  io.attach(fastify.server)
   
   const battleManager = new BattleManager(io)
   
