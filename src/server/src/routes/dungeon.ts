@@ -100,7 +100,7 @@ export async function dungeonRoutes(fastify: FastifyInstance) {
     return reply.send({ dungeon })
   })
 
-  fastify.post('/dungeons/:dungeonId/start', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/:dungeonId/start', async (request: FastifyRequest, reply: FastifyReply) => {
     const { dungeonId } = request.params as any
     const { playerId, partyMembers } = request.body as any
     
