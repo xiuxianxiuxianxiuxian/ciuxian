@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useGameStore } from '../stores/gameStore'
 import { api } from '../api/client'
 import { EROSION_CONFIG } from '../../../shared/types/erosion'
+import { getRealmByLevel, canBreakthrough, getNextRealm } from '../../../shared/types/realm'
 
 function CharacterPanel() {
   const { player, updatePlayer } = useGameStore()
+  const [breakthroughError, setBreakthroughError] = useState<string>('')
+  const [breakthroughSuccess, setBreakthroughSuccess] = useState<string>('')
   
   if (!player) return null
   
@@ -14,6 +17,26 @@ function CharacterPanel() {
       updatePlayer(result.data.player)
     }
   }
+  
+  const handleBreakthrough = async () => {
+    setBreakthroughError('')
+    setBreakthroughSuccess('')
+    
+    const result = await api.player.breakthrough(player.id)
+    
+    if (result.error) {
+      setBreakthroughError(result.error)
+    } else if (result.data) {
+      if ('player' in result.data) {
+        updatePlayer(result.data.player)
+        setBreakthroughSuccess(result.data.message)
+      }
+    }
+  }
+  
+  const currentRealm = getRealmByLevel(player.level)
+  const nextRealm = getNextRealm(player.realmLevel)
+  const canBreakthroughNow = canBreakthrough(player.realmLevel, player.level)
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -31,7 +54,66 @@ function CharacterPanel() {
           <div className="flex justify-between">
             <span className="text-gray-300">等级：</span>
             <span className="text-white font-bold">Lv.{player.level}</span>
+            <span className="text-gray-500">
+              / {currentRealm.maxLevel}
+            </span>
           </div>
+          
+          <div className="bg-gray-800 p-3 rounded">
+            <div className="text-sm text-gray-400 mb-1">当前境界能力</div>
+            <div className="space-y-1">
+              {currentRealm.abilities.map((ability, i) => (
+                <div key={i} className="text-xs text-gray-300">• {ability}</div>
+              ))}
+            </div>
+          </div>
+          
+          {breakthroughSuccess && (
+            <div className="bg-green-900 border border-green-500 p-3 rounded text-green-300">
+              {breakthroughSuccess}
+            </div>
+          )}
+          
+          {breakthroughError && (
+            <div className="bg-red-900 border border-red-500 p-3 rounded text-red-300">
+              {breakthroughError}
+            </div>
+          )}
+          
+          {nextRealm && (
+            <div className="border-t border-gray-600 pt-4 mt-4">
+              <h3 className="text-lg font-bold text-erosion-glow mb-2">下一境界</h3>
+              <div className="bg-gray-800 p-3 rounded mb-3">
+                <div className="font-bold text-white mb-2">{nextRealm.name}</div>
+                <div className="text-sm text-gray-400 mb-1">
+                  需要等级: {nextRealm.minLevel} - {nextRealm.maxLevel}
+                </div>
+                <div className="text-sm text-gray-300 mb-1">能力:</div>
+                <div className="space-y-1">
+                  {nextRealm.abilities.map((ability, i) => (
+                    <div key={i} className="text-xs text-gray-400">• {ability}</div>
+                  ))}
+                </div>
+                {nextRealm.cost && (
+                  <div className="text-xs text-red-400 mt-2">
+                    代价: {nextRealm.cost}
+                  </div>
+                )}
+              </div>
+              
+              <button
+                onClick={handleBreakthrough}
+                disabled={!canBreakthroughNow}
+                className={`w-full py-2 rounded transition ${
+                  canBreakthroughNow
+                    ? 'bg-erosion-glow hover:bg-red-600'
+                    : 'bg-gray-600 cursor-not-allowed'
+                }`}
+              >
+                {canBreakthroughNow ? '境界突破！' : '等级不足'}
+              </button>
+            </div>
+          )}
           
           <div className="flex justify-between">
             <span className="text-gray-300">职业：</span>

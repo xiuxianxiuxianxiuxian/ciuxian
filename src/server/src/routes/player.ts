@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { PrismaClient } from '@prisma/client'
 import { calculateErosionValue, ErosionType } from '../../../shared/types/erosion'
+import { getRealmByLevel, canBreakthrough, getNextRealm } from '../../../shared/types/realm'
 
 const prisma = new PrismaClient()
 
@@ -104,6 +105,47 @@ export async function playerRoutes(fastify: FastifyInstance) {
     return reply.send({
       message: '吞噬成功',
       player: finalPlayer
+    })
+  })
+  
+  fastify.post('/:id/breakthrough', async (request: FastifyRequest, reply: FastifyReply) => {
+    const { id } = request.params as any
+    
+    const player = await prisma.player.findUnique({ where: { id } })
+    if (!player) {
+      return reply.status(404).send({ error: '玩家不存在' })
+    }
+    
+    const currentRealm = getRealmByLevel(player.level)
+    
+    if (!canBreakthrough(player.realmLevel, player.level)) {
+      return reply.status(400).send({
+        error: '尚未达到突破条件',
+        currentLevel: player.level,
+        requiredLevel: currentRealm.maxLevel,
+        currentRealm: currentRealm.name
+      })
+    }
+    
+    const nextRealm = getNextRealm(player.realmLevel)
+    if (!nextRealm) {
+      return reply.status(400).send({ error: '已达到最高境界' })
+    }
+    
+    const updatedPlayer = await prisma.player.update({
+      where: { id },
+      data: {
+        realmLevel: { increment: 1 },
+        realmName: nextRealm.name
+      }
+    })
+    
+    return reply.send({
+      message: `突破成功！晋升为 ${nextRealm.name}！`,
+      player: updatedPlayer,
+      newRealm: nextRealm.name,
+      newAbilities: nextRealm.abilities,
+      cost: nextRealm.cost
     })
   })
 }

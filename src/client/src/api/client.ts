@@ -88,6 +88,14 @@ export const api = {
         body: JSON.stringify({ erosionType, amount })
       })
       return handleResponse<PlayerResponse>(response)
+    },
+    
+    breakthrough: async (id: string): Promise<ApiResponse<PlayerResponse & { message: string, newRealm: string, newAbilities: string[], cost?: string }>> => {
+      const response = await fetch(`${API_BASE}/players/${id}/breakthrough`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      return handleResponse(response)
     }
   },
   
